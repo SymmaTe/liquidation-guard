@@ -1,2 +1,2 @@
 [deploy]
-startCommand = "python monitor.py"
+startCommand = "python3 monitor.py"
