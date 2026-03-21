@@ -3,3 +3,4 @@ web3
 python-dotenv
 requests
 litellm
+supabase>=2.4.0
