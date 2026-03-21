@@ -1,0 +1,5 @@
+anthropic
+web3
+python-dotenv
+requests
+litellm

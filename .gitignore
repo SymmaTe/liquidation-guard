@@ -1,0 +1,8 @@
+.env
+agent/venv/
+contracts/out/
+contracts/cache/
+__pycache__/
+*.pyc
+node_modules/
+.DS_Store
