@@ -309,9 +309,6 @@ export default function SettingsPage() {
                   addresses={settings.monitorAddresses}
                   onChange={v => update({ monitorAddresses: v })}
                 />
-                <p className="text-xs text-gray-600">
-                  监控服务需要后端运行，Step 7 完成后生效。当前设置将在后端启动时自动同步。
-                </p>
               </>
             )}
           </Section>
@@ -515,9 +512,6 @@ export default function SettingsPage() {
               </div>
             )}
 
-            <p className="text-xs text-gray-600">
-              通知推送需要后端服务支持，配置后在 Step 7 完成时生效。
-            </p>
           </Section>
 
           {/* AI 分析 */}
@@ -609,9 +603,6 @@ export default function SettingsPage() {
               {testStatus === 'error' && <span className="text-xs text-red-400">{testError}</span>}
             </div>
 
-            <p className="text-xs text-gray-600">
-              Step 7 后端完成后生效，用于 AI 仓位分析和对话功能。
-            </p>
           </Section>
 
           {/* 保存按钮 */}
