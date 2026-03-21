@@ -11,7 +11,7 @@ app = FastAPI(title="Liquidation Guard API", version="0.1.0")
 # 允许前端跨域请求
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "https://*.vercel.app"],
+    allow_origins=["http://localhost:3000", "https://liquidation-guard.vercel.app"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
