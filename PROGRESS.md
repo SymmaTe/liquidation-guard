@@ -405,6 +405,44 @@ Supabase DB    Telegram Bot（告警推送，用用户 chat_id）
 
 ---
 
+## ✅ Step 7.5 — 生产部署
+
+**完成内容**：
+
+1. **后端（Railway）**
+   - `railway.toml`：Start Command = `cd backend && uvicorn main:app --host 0.0.0.0 --port $PORT`
+   - `.python-version`：固定 Python 3.12.3（避免 3.13 兼容性问题）
+   - `requirements.txt` 复制到项目根目录供 Railpack 识别
+   - CORS 配置精确域名：`https://liquidation-guard.vercel.app`
+   - 环境变量：`SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY`
+   - 数据库 RLS 启用，后端用 service_role key 绕过（无需策略）
+
+2. **监控进程（Railway 同项目第二个 service）**
+   - `agent/railway.toml`：Start Command = `python3 monitor.py`
+   - Root Directory 设置为 `agent`
+   - `agent/db.py` 改用 `SUPABASE_SERVICE_ROLE_KEY`（RLS 启用后 anon key 不可用）
+   - `agent/requirements.txt` 补充 `supabase>=2.4.0`
+   - AI 分析异常捕获从 `RuntimeError` 改为 `Exception`（防止 litellm 异常崩溃进程）
+   - 环境变量：`SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY`、`TELEGRAM_BOT_TOKEN`
+   - **⚠️ 待定**：监控告警 AI 分析暂未配置（当前显示"AI 分析暂不可用"），待决策方案：
+     - 方案 B：平台统一 API key（环境变量）
+     - 方案 C：告警附 App 链接，用户自行点开 AI 分析
+
+3. **前端（Vercel）**
+   - Root Directory = `frontend/`
+   - `frontend/.npmrc`：`legacy-peer-deps=true`（解决 wagmi v3 / rainbowkit v2 依赖冲突）
+   - `frontend/vercel.json`：`installCommand = npm install --legacy-peer-deps`
+   - 环境变量：`NEXT_PUBLIC_BACKEND_URL` = Railway 后端 URL
+   - 删除设置页开发占位提示文字（Step 7 相关小字）
+
+4. **部署文档**：`DEPLOY.md`
+
+**线上地址**：
+- 前端：`https://liquidation-guard.vercel.app`
+- 后端：`https://liquidation-guard-production.up.railway.app`
+
+---
+
 ## ⬜ Step 8 — 闪电贷保护合约（Solidity）
 
 **目标**：当用户没有闲置资金时，用闪电贷一笔交易完成调仓，提升健康度。
