@@ -169,26 +169,17 @@ def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", 
                 f"【步骤2】同时计算两种方案（目标健康度统一使用 {target_hf}）：\n"
                 f"  方案A 还款：调用 calculate_repayment_needed，传入 target_health={target_hf}\n"
                 f"  方案B 补仓：调用 calculate_collateral_needed（传入加权清算阈值），传入 target_health={target_hf}\n\n"
-                f"【步骤3】严格按以下格式输出，禁止使用 ** # ` 等 Markdown 符号，禁止出现注意线、紧急线、警告线等词，直接用数字描述：\n\n"
                 + (
-                    # DANGER 模板
-                    f"分析结果：当前健康度 {hf:.4f} 已低于 {danger_hf}，用紧迫自然的语气描述清算风险，直接用数字，不要提及公式或阈值名称。\n\n"
-                    f"方案对比：\n"
-                    f"方案A 还款：还 $xxx，健康度恢复至 {target_hf}\n"
-                    f"方案B 补仓：补 $xxx，健康度恢复至 {target_hf}\n\n"
-                    f"操作建议：\n"
-                    f"【推荐】方案X：强烈建议立即执行，[补仓/还款] [数量] 个 [代币]（当前价 $xxx，合计 $xxx），刻不容缓。\n"
-                    f"方案X：[补仓/还款] [数量] 个 [代币]（当前价 $xxx，合计 $xxx）。"
-                    if level == "DANGER" else
-                    # WARNING 模板
-                    f"分析结果：当前健康度 {hf:.4f}，触及 {warning_hf} 附近（内部参考紧迫度 {urgency_pct}%，低于50%偏紧急，高于50%尚有缓冲），"
-                    f"用自然语言描述风险程度，直接用数字，禁止出现阈值名称或百分比。\n\n"
-                    f"方案对比：\n"
-                    f"方案A 还款：还 $xxx，健康度恢复至 {target_hf}\n"
-                    f"方案B 补仓：补 $xxx，健康度恢复至 {target_hf}\n\n"
-                    f"操作建议：\n"
-                    f"【推荐】方案X：理由xxx，[补仓/还款] [数量] 个 [代币]（当前价 $xxx，合计 $xxx）。\n"
-                    f"方案X：[补仓/还款] [数量] 个 [代币]（当前价 $xxx，合计 $xxx）。"
+                    f"【内部判断参考，不得出现在输出中】\n"
+                    f"当前状态：{'健康度已跌破 ' + str(danger_hf) + '，清算迫在眉睫' if level == 'DANGER' else '健康度 ' + str(round(hf,4)) + ' 接近 ' + str(warning_hf) + '，紧迫度 ' + str(urgency_pct) + '%（低于50%须立即行动，高于50%可准备但别拖）'}\n"
+                    f"目标健康度：{target_hf}\n\n"
+                    f"【输出要求】\n"
+                    f"用流畅自然的中文写给普通用户看，像朋友提醒一样生动，{'语气要非常紧急' if level == 'DANGER' else '语气根据紧迫度判断轻重'}。\n"
+                    f"禁止暴露任何内部数字（紧迫度%、公式、阈值名称）。禁止使用 ** # ` 等 Markdown 符号。\n\n"
+                    f"必须包含以下三段，段落之间空行，但不要用标签或编号，直接写内容：\n"
+                    f"第一段：用一两句话描述当前风险状况和紧迫程度\n"
+                    f"第二段：列出两个方案的具体金额（只写 USD），说明各自恢复到 {target_hf} 所需费用，点评哪个更划算\n"
+                    f"第三段：给出明确推荐，说明具体操作（补仓选清算阈值最高的代币，还款选借款代币），写出数量、当前价格、合计金额；另一个方案也简要列出供参考\n"
                 )
             ),
         },
