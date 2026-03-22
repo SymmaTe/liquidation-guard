@@ -166,13 +166,13 @@ def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", 
             "content": (
                 f"你是 DeFi 清算保护 Agent。收到仓位告警时，必须严格按以下步骤执行：\n\n"
                 f"【步骤1】对每种质押和借款代币调用 get_token_price 获取最新价格\n\n"
-                f"【步骤2】同时计算两种方案（目标健康度统一使用 {target_hf}，即注意线 {warning_hf} + 0.05）：\n"
+                f"【步骤2】同时计算两种方案（目标健康度统一使用 {target_hf}）：\n"
                 f"  方案A 还款：调用 calculate_repayment_needed，传入 target_health={target_hf}\n"
                 f"  方案B 补仓：调用 calculate_collateral_needed（传入加权清算阈值），传入 target_health={target_hf}\n\n"
-                f"【步骤3】严格按以下格式输出，禁止使用 ** # ` 等 Markdown 符号：\n\n"
+                f"【步骤3】严格按以下格式输出，禁止使用 ** # ` 等 Markdown 符号，禁止出现"注意线"、"紧急线"、"警告线"等词，直接用数字描述：\n\n"
                 + (
-                    # DANGER 模板：已低于紧急线，跳过紧迫度计算直接告警
-                    f"分析结果：健康度已跌破紧急线 {danger_hf}，用紧迫的语气向用户描述清算风险，不要提及公式。\n\n"
+                    # DANGER 模板
+                    f"分析结果：当前健康度 {hf:.4f} 已低于 {danger_hf}，用紧迫自然的语气描述清算风险，直接用数字，不要提及公式或阈值名称。\n\n"
                     f"方案对比：\n"
                     f"方案A 还款：还 $xxx，健康度恢复至 {target_hf}\n"
                     f"方案B 补仓：补 $xxx，健康度恢复至 {target_hf}\n\n"
@@ -180,9 +180,9 @@ def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", 
                     f"【推荐】方案X：强烈建议立即执行，[补仓/还款] [数量] 个 [代币]（当前价 $xxx，合计 $xxx），刻不容缓。\n"
                     f"方案X：[补仓/还款] [数量] 个 [代币]（当前价 $xxx，合计 $xxx）。"
                     if level == "DANGER" else
-                    # WARNING 模板：在注意线和紧急线之间，给出紧迫度
-                    f"分析结果：根据紧迫度 {urgency_pct}%（内部参考，低于50%代表偏紧急，高于50%代表尚有缓冲），"
-                    f"用自然语言向用户描述当前风险程度，不要提及公式或百分比数字。\n\n"
+                    # WARNING 模板
+                    f"分析结果：当前健康度 {hf:.4f}，触及 {warning_hf} 附近（内部参考紧迫度 {urgency_pct}%，低于50%偏紧急，高于50%尚有缓冲），"
+                    f"用自然语言描述风险程度，直接用数字，禁止出现阈值名称或百分比。\n\n"
                     f"方案对比：\n"
                     f"方案A 还款：还 $xxx，健康度恢复至 {target_hf}\n"
                     f"方案B 补仓：补 $xxx，健康度恢复至 {target_hf}\n\n"
@@ -214,7 +214,7 @@ def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", 
         return run_agent(messages, model=_model or None, api_key=ai_api_key or None)
     except Exception as e:
         err = str(e).lower()
-        if any(k in err for k in ("quota", "insufficient_quota", "billing", "rate limit", "rate_limit", "429", "credit")):
+        if any(k in err for k in ("insufficient_quota", "exceeded your current quota", "billing", "you have run out", "no credits")):
             raise RuntimeError("__AI_QUOTA__") from e
         raise
 

@@ -426,7 +426,7 @@ async def agent_chat(body: ChatRequest):
 
         except Exception as e:
             err = str(e).lower()
-            if any(k in err for k in ("quota", "insufficient_quota", "billing", "rate limit", "rate_limit", "429", "credit")):
+            if any(k in err for k in ("insufficient_quota", "exceeded your current quota", "billing", "you have run out", "no credits")):
                 yield f"data: {json.dumps({'error': 'API Key 余额不足或超出限额，请前往对应平台充值后重试。'}, ensure_ascii=False)}\n\n"
             else:
                 yield f"data: {json.dumps({'error': str(e)}, ensure_ascii=False)}\n\n"
