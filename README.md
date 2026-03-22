@@ -2,6 +2,8 @@
 
 Aave V3 仓位监控与 AI 分析工具，帮助你实时掌握借贷健康度，在被清算前及时预警并给出操作建议。
 
+> 当前仅支持以太坊主网（Ethereum Mainnet）。
+
 **网址**：[liquidation-guard.vercel.app](https://liquidation-guard.vercel.app)
 
 ---
@@ -21,7 +23,7 @@ Aave V3 仓位监控与 AI 分析工具，帮助你实时掌握借贷健康度�
 
 ### 第一步：连接钱包
 
-点击右上角「Connect Wallet」，使用 MetaMask 或其他浏览器钱包连接。连接后即可查看自己的 Aave V3 仓位。
+点击左下角「Connect Wallet」，使用 MetaMask 或其他浏览器钱包连接。连接后即可查看自己的 Aave V3 仓位。
 
 ### 第二步：查看仓位
 
@@ -80,12 +82,14 @@ Aave V3 仓位监控与 AI 分析工具，帮助你实时掌握借贷健康度�
 
 支持 5 个 AI 提供商，需要填写对应平台的 API Key 和模型 ID。Key 加密存储于服务器，不会泄露。
 
+**强烈推荐 DeepSeek**：价格极低（约为 GPT-4o 的 1/20），分析质量完全够用，国内用户充值方便。注册后充值 5 元可用相当长时间。
+
 | 提供商 | 获取 Key | 常用模型 ID |
 |--------|----------|-------------|
+| ⭐ DeepSeek（推荐） | [platform.deepseek.com](https://platform.deepseek.com) → API Keys | `deepseek-chat` |
 | Anthropic Claude | [console.anthropic.com](https://console.anthropic.com) → API Keys | `claude-sonnet-4-6` |
 | OpenAI | [platform.openai.com](https://platform.openai.com) → API Keys | `gpt-4o` / `gpt-4o-mini` |
 | Google Gemini | [aistudio.google.com](https://aistudio.google.com) → Get API Key | `gemini-2.0-flash` |
-| DeepSeek | [platform.deepseek.com](https://platform.deepseek.com) → API Keys | `deepseek-chat` |
 | 豆包 | [console.volcengine.com](https://console.volcengine.com) → 模型推理 | `doubao-pro-32k-241215` |
 
 > 豆包模型 ID 需要日期后缀，请在火山引擎控制台「模型推理 → 模型广场」查看当前可用的完整 ID。
@@ -141,3 +145,14 @@ A：支持 Aave V3 主网所有代币，包括 ETH、WBTC、USDC、USDT、DAI、
 
 **Q：推荐填写自己的 RPC URL 吗？**
 A：强烈推荐。不填时使用公共节点，高频监控下可能遇到限速，AI 分析也会更慢。Alchemy 免费额度对个人用户完全够用。
+
+---
+
+## 反馈与联系
+
+遇到问题或有功能建议，欢迎通过以下方式反馈：
+
+- Twitter / X：[@MingYangFa40352](https://x.com/MingYangFa40352)
+- GitHub：[SymmaTe](https://github.com/SymmaTe)
+- Telegram：[@SymmaTe2026](https://t.me/SymmaTe2026)
+- 邮箱：fmy1908809325@gmail.com
