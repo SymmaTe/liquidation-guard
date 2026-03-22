@@ -76,8 +76,10 @@ async function apiAddMessage(wallet: string, convId: string, role: string, conte
 function formatDate(ts: string): string {
   const d = new Date(ts)
   const now = new Date()
-  const diff = now.getDate() - d.getDate()
-  if (diff === 0 && now.getMonth() === d.getMonth()) return '今天'
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const target = new Date(d.getFullYear(), d.getMonth(), d.getDate())
+  const diff = Math.round((today.getTime() - target.getTime()) / 86400000)
+  if (diff === 0) return '今天'
   if (diff === 1) return '昨天'
   return `${d.getMonth() + 1}/${d.getDate()}`
 }
@@ -377,13 +379,18 @@ function ChatArea({
           <div className="flex gap-3 items-center bg-white/5 border border-white/10 rounded-2xl px-4 py-3 focus-within:border-blue-500/40 transition-colors">
             <textarea
               value={input}
-              onChange={e => setInput(e.target.value)}
+              onChange={e => {
+                setInput(e.target.value)
+                e.target.style.height = 'auto'
+                e.target.style.height = Math.min(e.target.scrollHeight, 160) + 'px'
+              }}
               onKeyDown={e => {
                 if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(input) }
               }}
               placeholder="问问 AI 你的仓位风险…"
               rows={1}
               className="flex-1 bg-transparent text-sm text-gray-200 placeholder:text-gray-600 outline-none resize-none"
+              style={{ height: '24px', maxHeight: '160px' }}
             />
             <div className="flex items-center gap-2 shrink-0">
               {!loading && <span className="text-xs text-gray-700">Enter 发送</span>}
@@ -503,7 +510,17 @@ function ChatPageContent() {
         onDelete={handleDelete}
       />
       {queryAddress
-        ? active && <ChatArea key={activeId} conversation={active} address={queryAddress} wallet={wallet} onChange={handleChange} />
+        ? active
+          ? <ChatArea key={activeId} conversation={active} address={queryAddress} wallet={wallet} onChange={handleChange} />
+          : (
+            <div className="flex-1 flex flex-col items-center justify-center gap-5 text-center">
+              <div className="w-20 h-20 rounded-2xl bg-blue-500/10 border border-blue-500/20 flex items-center justify-center text-4xl">◉</div>
+              <div>
+                <p className="text-white text-xl font-semibold mb-2">开始新对话</p>
+                <p className="text-gray-500 text-sm">点击左侧「新对话」开始与 AI 对话</p>
+              </div>
+            </div>
+          )
         : <NoAddress />
       }
     </div>
