@@ -273,14 +273,16 @@ def execute_tool(tool_name: str, tool_args: dict) -> str:
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Agent 主循环
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def run_agent(messages: list) -> str:
+def run_agent(messages: list, model: str = None, api_key: str = None) -> str:
     pos_result = None
     bd_result  = None
+    _model = model or MODEL
+    _key   = api_key or API_KEY
 
     for _ in range(6):
         response = completion(
-            model=MODEL,
-            api_key=API_KEY,
+            model=_model,
+            api_key=_key,
             messages=messages,
             tools=TOOLS,
             tool_choice="auto",

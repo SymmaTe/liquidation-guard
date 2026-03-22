@@ -147,6 +147,7 @@ export default function SettingsPage() {
               ...prev.ai,
               provider: d.ai_provider ?? prev.ai.provider,
               model: d.ai_model ?? prev.ai.model,
+              apiKey: d.ai_api_key ?? prev.ai.apiKey,
             },
           }))
         }
@@ -271,6 +272,7 @@ export default function SettingsPage() {
             rpc_url: settings.rpcUrl,
             ai_provider: settings.ai.provider,
             ai_model: settings.ai.model,
+            ai_api_key: settings.ai.apiKey,
           }),
         })
       } catch {}
@@ -524,7 +526,7 @@ export default function SettingsPage() {
 
           {/* AI 分析 */}
           <Section title="AI 分析">
-            <p className="text-xs text-gray-500 mb-2">AI Key 用于对话分析，监控告警由平台提供。</p>
+            <p className="text-xs text-gray-500 mb-2">AI Key 用于对话分析和监控告警，加密存储于服务器，不会对外泄露。</p>
             {/* 提供商选择 */}
             <Row label="AI 提供商" desc="选择你拥有 API Key 的服务商">
               <select
@@ -552,7 +554,7 @@ export default function SettingsPage() {
               const cfg = AI_PROVIDERS[settings.ai.provider]
               const keyInvalid = settings.ai.apiKey.length > 0 && !cfg.validate(settings.ai.apiKey)
               return (
-                <Row label="API Key" desc="存储在本地，不会上传">
+                <Row label="API Key" desc="安全存储于服务器，用于对话和监控告警">
                   <div className="flex flex-col items-end gap-1">
                     <input
                       type="password"

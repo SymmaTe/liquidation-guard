@@ -25,6 +25,7 @@ class UserSettings(BaseModel):
     rpc_url: str = ''
     ai_provider: str = 'anthropic'
     ai_model: str = ''
+    ai_api_key: str = ''
 
 
 @router.get("/{wallet}")

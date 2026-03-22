@@ -98,7 +98,7 @@ SYSTEM_PROMPT = (
     "- 告警消息包含：健康度、告警级别、抵押/借款金额、AI 分析建议\n\n"
     "### AI 配置\n"
     "- 支持 5 个提供商：Anthropic（Claude）/ OpenAI（GPT）/ Google（Gemini）/ DeepSeek / 豆包\n"
-    "- 需填入对应平台的 API Key，Key 仅存本地（不上传服务器）\n"
+    "- 需填入对应平台的 API Key，Key 安全存储于服务器，仅用于 AI 对话和监控告警\n"
     "- 如何获取 API Key 及常用模型 ID：\n"
     "  * Anthropic Claude：console.anthropic.com → API Keys\n"
     "    模型 ID：claude-opus-4-6 / claude-sonnet-4-6 / claude-haiku-4-5-20251001\n"

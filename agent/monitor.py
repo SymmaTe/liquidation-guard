@@ -140,7 +140,7 @@ def _send_telegram(chat_id: str, text: str) -> None:
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # AI 分析（同步，给 executor 用）
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def _ai_analysis(pos: dict, level: str, breakdown: dict) -> str:
+def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", ai_model: str = "", ai_api_key: str = "") -> str:
     urgency = "紧急，即将被清算" if level == "DANGER" else "警告，接近告警线"
     token_lines = ""
     weighted_liq = ""
@@ -180,8 +180,14 @@ def _ai_analysis(pos: dict, level: str, breakdown: dict) -> str:
             ),
         },
     ]
+    # Build per-user model string with provider prefix
+    _prefix_map = {"deepseek": "deepseek/", "gemini": "gemini/", "doubao": "volcengine/"}
+    _prefix = _prefix_map.get(ai_provider, "")
+    _model = ai_model
+    if _prefix and _model and not _model.startswith(_prefix):
+        _model = _prefix + _model
     try:
-        return run_agent(messages)
+        return run_agent(messages, model=_model or None, api_key=ai_api_key or None)
     except Exception as e:
         err = str(e).lower()
         if any(k in err for k in ("quota", "insufficient_quota", "billing", "rate limit", "rate_limit", "429", "credit")):
@@ -201,6 +207,9 @@ def _check_address_sync(user: dict, address: str) -> None:
     use_custom   = user.get("custom_thresholds", False)
     custom_warn  = user.get("warning_hf", 1.4)
     custom_danger= user.get("danger_hf", 1.1)
+    ai_provider  = user.get("ai_provider", "")
+    ai_model     = user.get("ai_model", "")
+    ai_api_key   = user.get("ai_api_key", "")
 
     short = address[:8] + "..."
     try:
@@ -250,16 +259,17 @@ def _check_address_sync(user: dict, address: str) -> None:
     print(f"    {_level_emoji(level)} 告警  —  用户: {user_wallet[:8]}...  地址: {short}")
     print(f"    HF={pos['health']:.4f}  告警阈值={alert_t}  紧急阈值={danger_t}")
     advice = ""
-    if user_wallet in _ai_quota_alerted:
+    if not ai_api_key:
+        print(f"    [AI] 用户未配置 API Key，跳过分析")
+    elif user_wallet in _ai_quota_alerted:
         print(f"    [AI] 余额不足（已通知），跳过 AI 分析")
     else:
         print(f"    AI 分析中...")
         with _ai_lock:
             try:
-                advice = _ai_analysis(pos, level, breakdown)
+                advice = _ai_analysis(pos, level, breakdown, ai_provider, ai_model, ai_api_key)
                 _ai_quota_alerted.discard(user_wallet)
                 print(f"    AI 建议: {advice}")
-                time.sleep(3)  # 防止豆包 API 连续请求限制
             except Exception as e:
                 if "__AI_QUOTA__" in str(e):
                     print(f"    [AI] 余额不足，发送提示后降级")
