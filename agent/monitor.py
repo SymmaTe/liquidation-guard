@@ -12,6 +12,7 @@ import os
 import sys
 import time
 import traceback
+import threading
 import requests
 from datetime import datetime, timedelta
 from dotenv import load_dotenv
@@ -41,6 +42,9 @@ _last_history_write: dict[tuple, datetime] = {}
 # ── 已发过 AI Key 余额不足通知的用户 ─────────────────────────────────────
 # key: user_wallet_address；充值后 AI 调用成功时自动移除
 _ai_quota_alerted: set[str] = set()
+
+# ── AI 调用串行锁（避免并发触发速率限制）─────────────────────────────────
+_ai_lock = threading.Lock()
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -250,22 +254,23 @@ def _check_address_sync(user: dict, address: str) -> None:
         print(f"    [AI] 余额不足（已通知），跳过 AI 分析")
     else:
         print(f"    AI 分析中...")
-        try:
-            advice = _ai_analysis(pos, level, breakdown)
-            _ai_quota_alerted.discard(user_wallet)   # 成功 → 恢复
-            print(f"    AI 建议: {advice}")
-        except Exception as e:
-            if "__AI_QUOTA__" in str(e):
-                print(f"    [AI] 余额不足，发送提示后降级")
-                _ai_quota_alerted.add(user_wallet)
-                _send_telegram(
-                    chat_id,
-                    "⚠️ <b>AI API Key 余额不足</b>\n"
-                    "AI 分析功能已暂停，监控告警继续正常发送。\n"
-                    "请前往对应平台充值后，AI 分析将自动恢复。"
-                )
-            else:
-                print(f"    [AI] 分析失败: {e}")
+        with _ai_lock:
+            try:
+                advice = _ai_analysis(pos, level, breakdown)
+                _ai_quota_alerted.discard(user_wallet)
+                print(f"    AI 建议: {advice}")
+            except Exception as e:
+                if "__AI_QUOTA__" in str(e):
+                    print(f"    [AI] 余额不足，发送提示后降级")
+                    _ai_quota_alerted.add(user_wallet)
+                    _send_telegram(
+                        chat_id,
+                        "⚠️ <b>AI API Key 余额不足</b>\n"
+                        "AI 分析功能已暂停，监控告警继续正常发送。\n"
+                        "请前往对应平台充值后，AI 分析将自动恢复。"
+                    )
+                else:
+                    print(f"    [AI] 分析失败: {e}")
 
     print(f"    {'!'*50}\n")
 
