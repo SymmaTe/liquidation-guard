@@ -2,7 +2,7 @@
 
 Aave V3 仓位监控与 AI 分析工具，帮助你实时掌握借贷健康度，在被清算前及时预警并给出操作建议。
 
-> 当前仅支持以太坊主网（Ethereum Mainnet）。
+> 当前仅支持以太坊主网（Ethereum Mainnet），仅提供网页版，推荐使用桌面浏览器访问。
 
 **网址**：[liquidation-guard.vercel.app](https://liquidation-guard.vercel.app)
 
