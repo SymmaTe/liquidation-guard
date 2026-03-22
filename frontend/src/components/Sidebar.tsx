@@ -29,7 +29,7 @@ function WalletSection() {
         <p className="text-sm font-mono text-gray-200">{shortAddress(address)}</p>
       </div>
       <button
-        onClick={() => disconnect()}
+        onClick={() => { disconnect(); localStorage.removeItem('queryAddress') }}
         className="w-full text-xs text-gray-600 hover:text-red-400 py-1.5 transition-colors"
       >
         断开连接
