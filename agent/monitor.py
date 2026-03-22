@@ -169,7 +169,7 @@ def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", 
                 f"【步骤2】同时计算两种方案（目标健康度统一使用 {target_hf}）：\n"
                 f"  方案A 还款：调用 calculate_repayment_needed，传入 target_health={target_hf}\n"
                 f"  方案B 补仓：调用 calculate_collateral_needed（传入加权清算阈值），传入 target_health={target_hf}\n\n"
-                f"【步骤3】严格按以下格式输出，禁止使用 ** # ` 等 Markdown 符号，禁止出现"注意线"、"紧急线"、"警告线"等词，直接用数字描述：\n\n"
+                f"【步骤3】严格按以下格式输出，禁止使用 ** # ` 等 Markdown 符号，禁止出现注意线、紧急线、警告线等词，直接用数字描述：\n\n"
                 + (
                     # DANGER 模板
                     f"分析结果：当前健康度 {hf:.4f} 已低于 {danger_hf}，用紧迫自然的语气描述清算风险，直接用数字，不要提及公式或阈值名称。\n\n"
