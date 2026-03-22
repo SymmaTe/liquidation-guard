@@ -285,7 +285,7 @@ def run_agent(messages: list) -> str:
             tools=TOOLS,
             tool_choice="auto",
             max_tokens=512,
-            timeout=30,
+            timeout=60,
         )
         msg = response.choices[0].message
 
