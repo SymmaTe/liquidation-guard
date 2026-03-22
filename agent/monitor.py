@@ -305,7 +305,7 @@ def _check_address_sync(user: dict, address: str) -> None:
     _send_telegram(
         chat_id,
         f"{_level_emoji(level)} <b>{address[:10]}...</b>\n"
-        f"健康度: {pos['health']:.4f}  (告警阈值: {alert_t})\n"
+        f"健康度: {pos['health']:.4f}  ({'紧急阈值' if level == 'DANGER' else '告警阈值'}: {danger_t if level == 'DANGER' else alert_t})\n"
         f"抵押: ${pos['collateral']:,.2f}  |  借款: ${pos['debt']:,.2f}\n\n"
         + (advice if advice else "（AI 分析暂不可用）")
     )
