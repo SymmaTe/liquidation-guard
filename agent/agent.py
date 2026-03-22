@@ -279,14 +279,14 @@ def run_agent(messages: list, model: str = None, api_key: str = None) -> str:
     _model = model or MODEL
     _key   = api_key or API_KEY
 
-    for _ in range(6):
+    for _ in range(12):
         response = completion(
             model=_model,
             api_key=_key,
             messages=messages,
             tools=TOOLS,
             tool_choice="auto",
-            max_tokens=512,
+            max_tokens=1024,
             timeout=60,
         )
         msg = response.choices[0].message
@@ -316,7 +316,9 @@ def run_agent(messages: list, model: str = None, api_key: str = None) -> str:
                 pos_result = None  # 展示后重置，避免多轮对话重复打印
                 bd_result  = None
         else:
-            return msg.content
+            return msg.content or ""
+
+    return ""  # 超出最大轮次兜底
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
