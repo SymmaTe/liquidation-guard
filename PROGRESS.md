@@ -337,7 +337,7 @@ frontend/src/
    - `POST /test/telegram` — 用服务端 Bot Token 发测试消息
 3. **用户设置接口**
    - `GET /settings/{wallet}` — 从 Supabase 读取
-   - `POST /settings/{wallet}` — upsert，ai_key 不存后端
+   - `POST /settings/{wallet}` — upsert，ai_key Fernet 加密后存 Supabase；GET 只返回 has_ai_key bool
 4. **对话历史接口（5 个）**
    - GET / POST / DELETE 对话，GET / POST 消息
    - 第一条用户消息写入时自动更新对话标题
@@ -464,3 +464,24 @@ Supabase DB    Telegram Bot（告警推送，用用户 chat_id）
 - 闪电贷合约（继承 Aave FlashLoanReceiverBase）
 - Foundry 测试 + Sepolia 测试网部署
 - monitor.py AI 新增闲置资金判断工具
+
+---
+
+## Update 2026-03-22 — AI 分析优化 + Bug 修复
+
+### AI 分析重构
+- 输出改为自然语言，内部紧迫度/阈值不暴露给用户
+- 紧迫度公式：`(hf - danger_t) / (alert_t - danger_t)`，低于50%紧急，高于50%可观望
+- 目标健康度 = 用户注意线 + 0.05（最小缓冲，刚好脱离警戒区）
+- DANGER/WARNING 分两套模板，语气各异
+- 禁止 AI 重复调用 get_aave_position / get_collateral_breakdown（数据已预取，节省 token）
+- 用户 rpc_url 正确传入 AI 工具调用链（get_token_price 等），避免公共节点 429
+
+### Bug 修复
+- run_agent loop 6→12，max_tokens 512→1024，修复多代币地址 AI 返回 None
+- 每用户独立 AI 锁（_ai_locks dict），不同用户并行，同用户多地址串行
+- Telegram 告警：DANGER 显示紧急阈值，WARNING 显示告警阈值
+- 注意线 HF 前端上限收紧至 1.5，紧急线上限动态跟随注意线 - 0.01
+- 测试按钮成功状态 3 秒后自动消失
+- AI 余额不足误报：收紧关键词匹配
+- f-string 内中文弯引号导致 SyntaxError 修复
