@@ -158,8 +158,9 @@ def _ai_analysis(pos: dict, level: str, breakdown: dict) -> str:
                 "   方案A 还款：调用 calculate_repayment_needed\n"
                 "   方案B 补仓：调用 calculate_collateral_needed（传入加权清算阈值）\n"
                 "3. 综合判断是否真的需要操作\n"
-                "最终建议不超过150字，分三段：①分析结果 ②方案对比（还款 vs 补仓） ③操作建议。"
-                "用换行分段，禁止使用 ** # ` 等 Markdown 符号。"
+                "最终建议不超过150字，必须严格按以下格式输出，每段用标签开头：\n"
+                "分析结果：xxx\n\n方案对比：xxx\n\n操作建议：xxx\n"
+                "禁止使用 ** # ` 等 Markdown 符号。"
             ),
         },
         {
