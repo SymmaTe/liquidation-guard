@@ -141,8 +141,9 @@ def _send_telegram(chat_id: str, text: str) -> None:
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # AI 分析（同步，给 executor 用）
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", ai_model: str = "", ai_api_key: str = "") -> str:
+def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", ai_model: str = "", ai_api_key: str = "", warning_hf: float = 1.4) -> str:
     urgency = "紧急，即将被清算" if level == "DANGER" else "警告，接近告警线"
+    target_hf = round(warning_hf + 0.2, 2)
     token_lines = ""
     weighted_liq = ""
     if breakdown and breakdown.get("collateral_tokens"):
@@ -157,15 +158,15 @@ def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", 
         {
             "role": "system",
             "content": (
-                "你是 DeFi 清算保护 Agent。收到仓位告警时，必须按顺序执行：\n"
-                "1. 对每种质押和借款代币调用 get_token_price 获取最新价格\n"
-                "2. 同时计算两种方案：\n"
-                "   方案A 还款：调用 calculate_repayment_needed\n"
-                "   方案B 补仓：调用 calculate_collateral_needed（传入加权清算阈值）\n"
-                "3. 综合判断是否真的需要操作\n"
-                "最终建议不超过150字，必须严格按以下格式输出，每段用标签开头：\n"
-                "分析结果：xxx\n\n方案对比：xxx\n\n操作建议：xxx\n"
-                "禁止使用 ** # ` 等 Markdown 符号。"
+                f"你是 DeFi 清算保护 Agent。收到仓位告警时，必须按顺序执行：\n"
+                f"1. 对每种质押和借款代币调用 get_token_price 获取最新价格\n"
+                f"2. 同时计算两种方案（目标健康度统一使用 {target_hf}，即用户警告线 {warning_hf} + 缓冲 0.2）：\n"
+                f"   方案A 还款：调用 calculate_repayment_needed，传入 target_health={target_hf}\n"
+                f"   方案B 补仓：调用 calculate_collateral_needed（传入加权清算阈值），传入 target_health={target_hf}\n"
+                f"3. 综合判断是否真的需要操作\n"
+                f"最终建议不超过150字，必须严格按以下格式输出，每段用标签开头：\n"
+                f"分析结果：xxx\n\n方案对比：xxx\n\n操作建议：xxx\n"
+                f"禁止使用 ** # ` 等 Markdown 符号。"
             ),
         },
         {
@@ -270,7 +271,7 @@ def _check_address_sync(user: dict, address: str) -> None:
             _ai_locks[user_wallet] = threading.Lock()
         with _ai_locks[user_wallet]:
             try:
-                advice = _ai_analysis(pos, level, breakdown, ai_provider, ai_model, ai_api_key)
+                advice = _ai_analysis(pos, level, breakdown, ai_provider, ai_model, ai_api_key, warning_hf=alert_t)
                 _ai_quota_alerted.discard(user_wallet)
                 print(f"    AI 建议: {advice}")
             except Exception as e:

@@ -305,13 +305,15 @@ class ChatRequest(BaseModel):
 async def agent_chat(body: ChatRequest):
     async def generate():
         try:
-            # Fetch user's API key from DB
+            # Fetch user's API key and thresholds from DB
             api_key = ""
+            warning_hf = 1.4
             if body.wallet_address:
                 try:
-                    res = supabase.table("user_settings").select("ai_api_key").eq("wallet_address", body.wallet_address).single().execute()
+                    res = supabase.table("user_settings").select("ai_api_key, warning_hf").eq("wallet_address", body.wallet_address).single().execute()
                     if res.data:
                         api_key = decrypt(res.data.get("ai_api_key") or "")
+                        warning_hf = float(res.data.get("warning_hf") or 1.4)
                 except Exception:
                     pass
             if not api_key:
@@ -323,7 +325,13 @@ async def agent_chat(body: ChatRequest):
             if not messages or messages[0].get("role") != "system":
                 system = SYSTEM_PROMPT
                 if body.wallet_address:
-                    system += f"\n\n【用户钱包地址】{body.wallet_address}\n用户询问「我的仓位」时，直接用此地址查询，无需再索要。"
+                    target_hf = round(warning_hf + 0.2, 2)
+                    system += (
+                        f"\n\n【用户钱包地址】{body.wallet_address}\n"
+                        f"用户询问「我的仓位」时，直接用此地址查询，无需再索要。\n"
+                        f"【用户告警阈值】警告线 HF={warning_hf}，计算补仓/还款时目标健康度统一使用 {target_hf}（警告线 + 缓冲 0.2），"
+                        f"调用 calculate_repayment_needed 和 calculate_collateral_needed 时必须传入 target_health={target_hf}。"
+                    )
                 messages.insert(0, {"role": "system", "content": system})
 
             rpc_url = body.rpc_url or None
