@@ -198,6 +198,7 @@ export default function SettingsPage() {
       const json = await res.json()
       if (json.ok) {
         setRpcStatus('ok')
+        setTimeout(() => setRpcStatus('idle'), 3000)
       } else {
         setRpcStatus('error')
         setRpcError(json.error ?? '连接失败')
@@ -220,6 +221,7 @@ export default function SettingsPage() {
       const json = await res.json()
       if (json.ok) {
         setTestStatus('ok')
+        setTimeout(() => setTestStatus('idle'), 3000)
       } else {
         setTestStatus('error')
         setTestError(json.error ?? '连接失败')
@@ -243,6 +245,7 @@ export default function SettingsPage() {
       const json = await res.json()
       if (json.ok) {
         setTgStatus('ok')
+        setTimeout(() => setTgStatus('idle'), 3000)
       } else {
         setTgStatus('error')
         setTgError(json.error ?? '发送失败')
