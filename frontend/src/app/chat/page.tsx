@@ -486,6 +486,14 @@ function ChatPageContent() {
 
   const active = history.find(c => c.id === activeId)
 
+  if (!isConnected) return (
+    <div className="flex h-screen items-center justify-center text-center flex-col gap-4">
+      <div className="text-4xl">🔌</div>
+      <p className="text-gray-300 text-lg font-medium">请先连接钱包</p>
+      <p className="text-gray-600 text-sm">对话历史需要绑定钱包地址</p>
+    </div>
+  )
+
   return (
     <div className="flex h-screen">
       <ConversationSidebar

@@ -279,6 +279,14 @@ export default function SettingsPage() {
     setTimeout(() => setSaved(false), 2000)
   }
 
+  if (!walletAddress) return (
+    <div className="min-h-screen flex flex-col items-center justify-center text-center gap-4">
+      <div className="text-4xl">🔌</div>
+      <p className="text-gray-300 text-lg font-medium">请先连接钱包</p>
+      <p className="text-gray-600 text-sm">监控设置需要绑定钱包地址</p>
+    </div>
+  )
+
   return (
     <div className="min-h-screen flex flex-col items-center px-10 py-10">
       <div className="w-full max-w-2xl">
