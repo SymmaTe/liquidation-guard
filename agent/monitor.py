@@ -153,9 +153,8 @@ def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", 
     token_lines = ""
     weighted_liq = ""
     if breakdown and breakdown.get("collateral_tokens"):
-        token_lines = "\n质押明细：\n" + "".join(
-            f"  - {t['symbol']}: {t['amount']} 个 @ ${t['price_usd']:,.2f} = ${t['value_usd']:,.2f}"
-            f"  清算阈值 {t['liq_threshold_pct']}\n"
+        token_lines = "\n质押明细（价格需调用 get_token_price 获取最新值）：\n" + "".join(
+            f"  - {t['symbol']}: {t['amount']} 个，价值约 ${t['value_usd']:,.2f}，清算阈值 {t['liq_threshold_pct']}\n"
             for t in breakdown["collateral_tokens"]
         )
         weighted_liq = f"加权清算阈值: {breakdown['weighted_liq_pct']}\n"
@@ -189,7 +188,7 @@ def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", 
             "content": (
                 f"当前仓位数据：\n"
                 f"钱包: {pos['wallet']}\n"
-                f"健康度: {hf:.4f}（注意线: {warning_hf}，紧急线: {danger_hf}，紧迫度: {urgency_pct}%）\n"
+                f"健康度: {hf:.4f}\n"
                 f"总抵押: ${pos['collateral']:,.2f}\n"
                 f"总借款: ${pos['debt']:,.2f}\n"
                 f"{token_lines}{weighted_liq}"
