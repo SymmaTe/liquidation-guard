@@ -105,6 +105,7 @@ export default function SettingsPage() {
   const { address: walletAddress } = useConnection()
   const [settings, setSettings] = useState<AppSettings>(DEFAULT_SETTINGS)
   const [saved, setSaved] = useState(false)
+  const [hasApiKey, setHasApiKey] = useState(false)
   const [testStatus, setTestStatus] = useState<'idle' | 'testing' | 'ok' | 'error'>('idle')
   const [testError, setTestError] = useState('')
   const [rpcStatus, setRpcStatus] = useState<'idle' | 'testing' | 'ok' | 'error'>('idle')
@@ -122,6 +123,7 @@ export default function SettingsPage() {
       .then(json => {
         if (json.ok && json.data) {
           const d = json.data
+          setHasApiKey(d.has_ai_key ?? false)
           setSettings(prev => ({
             ...prev,
             monitorEnabled: d.monitor_enabled ?? prev.monitorEnabled,
@@ -147,7 +149,6 @@ export default function SettingsPage() {
               ...prev.ai,
               provider: d.ai_provider ?? prev.ai.provider,
               model: d.ai_model ?? prev.ai.model,
-              apiKey: d.ai_api_key ?? prev.ai.apiKey,
             },
           }))
         }
@@ -560,7 +561,7 @@ export default function SettingsPage() {
                       type="password"
                       value={settings.ai.apiKey}
                       onChange={e => updateAi({ apiKey: e.target.value })}
-                      placeholder={cfg.keyPlaceholder}
+                      placeholder={hasApiKey && !settings.ai.apiKey ? "已设置（留空保持不变）" : cfg.keyPlaceholder}
                       className={`w-52 bg-white/5 border rounded-lg px-3 py-1.5 text-sm font-mono text-gray-200 placeholder:text-gray-600 outline-none transition-colors ${
                         keyInvalid ? 'border-red-500/60' : 'border-white/10 focus:border-blue-500/50'
                       }`}

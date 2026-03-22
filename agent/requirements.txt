@@ -4,3 +4,4 @@ python-dotenv
 requests
 litellm
 supabase>=2.4.0
+cryptography>=42.0.0

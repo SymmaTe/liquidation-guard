@@ -15,6 +15,8 @@ from typing import Optional
 # 把 agent/ 目录加入 import 路径
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", "agent")))
 
+from db import supabase
+from crypto import decrypt
 from litellm import acompletion
 from read_position import (
     get_position,
@@ -292,7 +294,6 @@ def _execute_tool(name: str, args: dict, rpc_url: str | None) -> str:
 # ─── 请求 / 响应模型 ───────────────────────────────────────────────────────────
 class ChatRequest(BaseModel):
     messages:       list
-    api_key:        str
     model:          str
     provider:       str = "anthropic"
     rpc_url:        Optional[str] = None
@@ -304,6 +305,19 @@ class ChatRequest(BaseModel):
 async def agent_chat(body: ChatRequest):
     async def generate():
         try:
+            # Fetch user's API key from DB
+            api_key = ""
+            if body.wallet_address:
+                try:
+                    res = supabase.table("user_settings").select("ai_api_key").eq("wallet_address", body.wallet_address).single().execute()
+                    if res.data:
+                        api_key = decrypt(res.data.get("ai_api_key") or "")
+                except Exception:
+                    pass
+            if not api_key:
+                yield f"data: {json.dumps({'error': '请先在设置页配置 AI API Key'}, ensure_ascii=False)}\n\n"
+                return
+
             messages = list(body.messages)
 
             if not messages or messages[0].get("role") != "system":
@@ -324,7 +338,7 @@ async def agent_chat(body: ChatRequest):
             for _ in range(6):
                 response = await acompletion(
                     model=model,
-                    api_key=body.api_key,
+                    api_key=api_key,
                     messages=messages,
                     tools=TOOLS,
                     tool_choice="auto",

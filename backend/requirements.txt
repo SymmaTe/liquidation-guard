@@ -6,3 +6,4 @@ requests>=2.31.0
 supabase>=2.4.0
 web3>=6.0.0
 litellm>=1.0.0
+cryptography>=42.0.0

@@ -20,6 +20,7 @@ from dotenv import load_dotenv
 sys.path.append(".")
 from read_position import get_position, get_user_collateral_breakdown, compute_weighted_thresholds
 from agent import run_agent
+from crypto import decrypt
 
 load_dotenv("../.env")
 
@@ -209,7 +210,7 @@ def _check_address_sync(user: dict, address: str) -> None:
     custom_danger= user.get("danger_hf", 1.1)
     ai_provider  = user.get("ai_provider", "")
     ai_model     = user.get("ai_model", "")
-    ai_api_key   = user.get("ai_api_key", "")
+    ai_api_key   = decrypt(user.get("ai_api_key", "") or "")
 
     short = address[:8] + "..."
     try:

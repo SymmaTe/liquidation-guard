@@ -8,6 +8,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 from typing import Optional
 from db import supabase
+from crypto import encrypt, decrypt
 
 router = APIRouter()
 
@@ -32,7 +33,11 @@ class UserSettings(BaseModel):
 async def get_settings(wallet: str):
     try:
         res = supabase.table("user_settings").select("*").eq("wallet_address", wallet).single().execute()
-        return {"ok": True, "data": res.data}
+        data = res.data or {}
+        # Don't expose ai_api_key to frontend; return has_ai_key flag instead
+        raw_key = data.pop("ai_api_key", "") or ""
+        data["has_ai_key"] = bool(raw_key)
+        return {"ok": True, "data": data}
     except Exception:
         return {"ok": False, "data": None}
 
@@ -40,9 +45,17 @@ async def get_settings(wallet: str):
 @router.post("/{wallet}")
 async def save_settings(wallet: str, body: UserSettings):
     try:
+        data = body.model_dump()
+        # Encrypt api key; if empty string sent, keep existing key (don't overwrite with empty)
+        raw_key = data.get("ai_api_key", "")
+        if raw_key:
+            data["ai_api_key"] = encrypt(raw_key)
+        else:
+            # Don't overwrite existing key with empty
+            data.pop("ai_api_key", None)
         data = {
             "wallet_address": wallet,
-            **body.model_dump(),
+            **data,
             "updated_at": "now()",
         }
         supabase.table("user_settings").upsert(data).execute()

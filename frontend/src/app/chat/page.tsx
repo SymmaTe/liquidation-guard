@@ -232,10 +232,10 @@ function ChatArea({
     if (wallet) await apiAddMessage(wallet, conversation.id, 'user', text.trim())
 
     const settings = loadSettings()
-    const { apiKey, model, provider } = settings.ai
+    const { model, provider } = settings.ai
 
-    if (!apiKey || !model) {
-      const errContent = '请先在设置页填写 AI 提供商和 API Key，才能使用对话功能。'
+    if (!model) {
+      const errContent = '请先在设置页填写 AI 提供商和模型 ID，才能使用对话功能。'
       onChange({ ...conversation, title, messages: withPlaceholder.map(m => m.id === aiMsgId ? { ...m, content: errContent } : m) })
       setLoading(false)
       return
@@ -251,7 +251,6 @@ function ChatArea({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           messages: updatedMessages.slice(-10).map(m => ({ role: m.role, content: m.content })),
-          api_key: apiKey,
           model,
           provider,
           rpc_url: settings.rpcUrl || null,
