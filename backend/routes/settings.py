@@ -44,6 +44,11 @@ async def get_settings(wallet: str):
 
 @router.post("/{wallet}")
 async def save_settings(wallet: str, body: UserSettings):
+    # Validate thresholds
+    if body.custom_thresholds and body.danger_hf >= body.warning_hf:
+        return {"ok": False, "error": "紧急线必须低于注意线"}
+    if body.monitor_enabled and not body.monitor_addresses:
+        return {"ok": False, "error": "开启监控时至少需要一个监控地址"}
     try:
         data = body.model_dump()
         # Encrypt api key; if empty string sent, keep existing key (don't overwrite with empty)

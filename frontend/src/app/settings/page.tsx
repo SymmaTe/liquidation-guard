@@ -194,6 +194,7 @@ export default function SettingsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ rpc_url: settings.rpcUrl }),
+        signal: AbortSignal.timeout(10000),
       })
       const json = await res.json()
       if (json.ok) {
@@ -217,6 +218,7 @@ export default function SettingsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ provider: settings.ai.provider, api_key: settings.ai.apiKey, model: settings.ai.model }),
+        signal: AbortSignal.timeout(10000),
       })
       const json = await res.json()
       if (json.ok) {
@@ -241,6 +243,7 @@ export default function SettingsPage() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ chat_id: settings.telegram.chatId }),
+        signal: AbortSignal.timeout(10000),
       })
       const json = await res.json()
       if (json.ok) {
@@ -260,7 +263,7 @@ export default function SettingsPage() {
     saveSettings(settings)
     if (walletAddress) {
       try {
-        await fetch(`${BACKEND}/settings/${walletAddress}`, {
+        const res = await fetch(`${BACKEND}/settings/${walletAddress}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -278,8 +281,17 @@ export default function SettingsPage() {
             ai_model: settings.ai.model,
             ai_api_key: settings.ai.apiKey,
           }),
+          signal: AbortSignal.timeout(10000),
         })
-      } catch {}
+        const json = await res.json()
+        if (!json.ok) {
+          alert(json.error ?? '保存失败，请重试')
+          return
+        }
+      } catch {
+        alert('网络错误，设置未能同步到服务器，请重试')
+        return
+      }
     }
     setSaved(true)
     setTimeout(() => setSaved(false), 2000)

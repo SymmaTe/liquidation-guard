@@ -472,7 +472,7 @@ function ChatPageContent() {
   async function handleNew() {
     if (!wallet) return
     const c = await apiCreateConversation(wallet, '新对话')
-    if (!c) return
+    if (!c) { alert('创建对话失败，请检查网络后重试'); return }
     setHistory(prev => [c, ...prev])
     setActiveId(c.id)
   }
