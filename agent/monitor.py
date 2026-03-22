@@ -170,15 +170,24 @@ def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", 
                 f"  方案A 还款：调用 calculate_repayment_needed，传入 target_health={target_hf}\n"
                 f"  方案B 补仓：调用 calculate_collateral_needed（传入加权清算阈值），传入 target_health={target_hf}\n\n"
                 f"【步骤3】严格按以下格式输出，禁止使用 ** # ` 等 Markdown 符号：\n\n"
-                f"分析结果：说明当前紧迫程度。"
-                f"紧迫度公式：(当前HF - 紧急线) / (注意线 - 紧急线)，"
-                f"已算好为 {urgency_pct}%。"
-                f"低于50%说明必须立即操作；高于50%说明可观望但建议提前准备。\n\n"
-                f"方案对比：\n"
-                f"方案A 还款：还 $xxx，健康度恢复至 {target_hf}\n"
-                f"方案B 补仓：补 $xxx，健康度恢复至 {target_hf}\n\n"
-                f"操作建议：推荐方案X，理由xxx。"
-                f"具体操作：[补仓/还款] [数量] 个 [代币]（当前价 $xxx，合计 $xxx）。"
+                + (
+                    # DANGER 模板：已低于紧急线，跳过紧迫度计算直接告警
+                    f"分析结果：健康度已跌破紧急线 {danger_hf}，面临被清算风险，必须立即采取措施！\n\n"
+                    f"方案对比：\n"
+                    f"方案A 还款：还 $xxx，健康度恢复至 {target_hf}\n"
+                    f"方案B 补仓：补 $xxx，健康度恢复至 {target_hf}\n\n"
+                    f"操作建议：强烈建议立即执行方案X。"
+                    f"具体操作：[补仓/还款] [数量] 个 [代币]（当前价 $xxx，合计 $xxx），刻不容缓。"
+                    if level == "DANGER" else
+                    # WARNING 模板：在注意线和紧急线之间，给出紧迫度
+                    f"分析结果：健康度触及注意线，紧迫度 {urgency_pct}%（越低越危险）。"
+                    f"低于50%须立即操作；高于50%可观望但建议提前准备。\n\n"
+                    f"方案对比：\n"
+                    f"方案A 还款：还 $xxx，健康度恢复至 {target_hf}\n"
+                    f"方案B 补仓：补 $xxx，健康度恢复至 {target_hf}\n\n"
+                    f"操作建议：推荐方案X，理由xxx。"
+                    f"具体操作：[补仓/还款] [数量] 个 [代币]（当前价 $xxx，合计 $xxx）。"
+                )
             ),
         },
         {
