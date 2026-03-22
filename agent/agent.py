@@ -25,11 +25,16 @@ load_dotenv("../.env")
 
 MODEL    = os.getenv("AI_MODEL", "ollama/llama3.2")
 PROVIDER = os.getenv("AI_PROVIDER", "ollama")
+_PREFIX_MAP = {"deepseek": "deepseek/", "gemini": "gemini/", "doubao": "volcengine/"}
+_prefix = _PREFIX_MAP.get(PROVIDER, "")
+if _prefix and not MODEL.startswith(_prefix):
+    MODEL = _prefix + MODEL
 KEY_MAP  = {
     "anthropic": os.getenv("ANTHROPIC_API_KEY"),
     "openai":    os.getenv("OPENAI_API_KEY"),
     "gemini":    os.getenv("GEMINI_API_KEY"),
     "deepseek":  os.getenv("DEEPSEEK_API_KEY"),
+    "doubao":    os.getenv("ARK_API_KEY"),
     "ollama":    "ollama",
 }
 API_KEY = KEY_MAP.get(PROVIDER, "ollama")
