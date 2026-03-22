@@ -485,3 +485,13 @@ Supabase DB    Telegram Bot（告警推送，用用户 chat_id）
 - 测试按钮成功状态 3 秒后自动消失
 - AI 余额不足误报：收紧关键词匹配
 - f-string 内中文弯引号导致 SyntaxError 修复
+- token_lines 去除旧价格，避免与 get_token_price 实时价格冲突
+
+### 发布前审计修复（2026-03-22）
+- 后端校验：dangerHF ≥ warningHF 或监控开启但无地址时拒绝保存并返回错误
+- 设置保存：网络失败或后端拒绝时显示 alert，不再静默显示"已保存"
+- 三个测试按钮加 10s AbortSignal 超时，不再卡死
+- 新建对话失败时 alert 提示，不再静默无反应
+- chat formatDate 跨月 bug 修复（用时间戳差值替代 getDate() 相减）
+- chat textarea 自动撑高，最大 160px
+- chat 无对话时右侧显示"开始新对话"引导提示
