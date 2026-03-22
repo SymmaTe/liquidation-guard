@@ -420,8 +420,8 @@ export default function SettingsPage() {
                 <Row label="注意线 HF" desc="低于此值显示注意">
                   <input
                     type="number"
-                    min={1.01}
-                    max={3}
+                    min={1.05}
+                    max={1.5}
                     step={0.01}
                     value={settings.customThresholds.warningHF}
                     onChange={e => updateThresholds({ warningHF: Number(e.target.value) })}
@@ -433,7 +433,7 @@ export default function SettingsPage() {
                   <input
                     type="number"
                     min={1.01}
-                    max={3}
+                    max={Math.round((settings.customThresholds.warningHF - 0.01) * 100) / 100}
                     step={0.01}
                     value={settings.customThresholds.dangerHF}
                     onChange={e => updateThresholds({ dangerHF: Number(e.target.value) })}
