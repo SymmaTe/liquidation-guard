@@ -534,11 +534,8 @@ export default function SettingsPage() {
                 value={settings.ai.provider}
                 onChange={e => {
                   const provider = e.target.value as AiProvider
-                  updateAi({
-                    provider,
-                    model: '',
-                    apiKey: '',
-                  })
+                  updateAi({ provider, model: '', apiKey: '' })
+                  setTestStatus('idle')
                 }}
                 className="bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm text-gray-200 outline-none focus:border-blue-500/50"
               >
@@ -560,7 +557,7 @@ export default function SettingsPage() {
                     <input
                       type="password"
                       value={settings.ai.apiKey}
-                      onChange={e => updateAi({ apiKey: e.target.value })}
+                      onChange={e => { updateAi({ apiKey: e.target.value }); setTestStatus('idle') }}
                       placeholder={hasApiKey && !settings.ai.apiKey ? "已设置（留空保持不变）" : cfg.keyPlaceholder}
                       className={`w-52 bg-white/5 border rounded-lg px-3 py-1.5 text-sm font-mono text-gray-200 placeholder:text-gray-600 outline-none transition-colors ${
                         keyInvalid ? 'border-red-500/60' : 'border-white/10 focus:border-blue-500/50'
@@ -585,7 +582,7 @@ export default function SettingsPage() {
                     <input
                       type="text"
                       value={settings.ai.model}
-                      onChange={e => updateAi({ model: e.target.value })}
+                      onChange={e => { updateAi({ model: e.target.value }); setTestStatus('idle') }}
                       placeholder="在官方文档中查找模型 ID"
                       className="w-52 bg-white/5 border border-white/10 rounded-lg px-3 py-1.5 text-sm font-mono text-gray-200 placeholder:text-gray-600 outline-none focus:border-blue-500/50"
                     />
