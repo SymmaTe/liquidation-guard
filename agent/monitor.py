@@ -176,8 +176,9 @@ def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", 
                     f"方案对比：\n"
                     f"方案A 还款：还 $xxx，健康度恢复至 {target_hf}\n"
                     f"方案B 补仓：补 $xxx，健康度恢复至 {target_hf}\n\n"
-                    f"操作建议：强烈建议立即执行方案X。"
-                    f"具体操作：[补仓/还款] [数量] 个 [代币]（当前价 $xxx，合计 $xxx），刻不容缓。"
+                    f"操作建议：\n"
+                    f"【推荐】方案X：强烈建议立即执行，[补仓/还款] [数量] 个 [代币]（当前价 $xxx，合计 $xxx），刻不容缓。\n"
+                    f"方案X：[补仓/还款] [数量] 个 [代币]（当前价 $xxx，合计 $xxx）。"
                     if level == "DANGER" else
                     # WARNING 模板：在注意线和紧急线之间，给出紧迫度
                     f"分析结果：根据紧迫度 {urgency_pct}%（内部参考，低于50%代表偏紧急，高于50%代表尚有缓冲），"
@@ -185,8 +186,9 @@ def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", 
                     f"方案对比：\n"
                     f"方案A 还款：还 $xxx，健康度恢复至 {target_hf}\n"
                     f"方案B 补仓：补 $xxx，健康度恢复至 {target_hf}\n\n"
-                    f"操作建议：推荐方案X，理由xxx。"
-                    f"具体操作：[补仓/还款] [数量] 个 [代币]（当前价 $xxx，合计 $xxx）。"
+                    f"操作建议：\n"
+                    f"【推荐】方案X：理由xxx，[补仓/还款] [数量] 个 [代币]（当前价 $xxx，合计 $xxx）。\n"
+                    f"方案X：[补仓/还款] [数量] 个 [代币]（当前价 $xxx，合计 $xxx）。"
                 )
             ),
         },
