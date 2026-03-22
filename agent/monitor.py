@@ -259,6 +259,7 @@ def _check_address_sync(user: dict, address: str) -> None:
                 advice = _ai_analysis(pos, level, breakdown)
                 _ai_quota_alerted.discard(user_wallet)
                 print(f"    AI 建议: {advice}")
+                time.sleep(3)  # 防止豆包 API 连续请求限制
             except Exception as e:
                 if "__AI_QUOTA__" in str(e):
                     print(f"    [AI] 余额不足，发送提示后降级")
