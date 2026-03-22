@@ -44,8 +44,8 @@ _last_history_write: dict[tuple, datetime] = {}
 # key: user_wallet_address；充值后 AI 调用成功时自动移除
 _ai_quota_alerted: set[str] = set()
 
-# ── AI 调用串行锁（避免并发触发速率限制）─────────────────────────────────
-_ai_lock = threading.Lock()
+# ── AI 调用串行锁（每用户一把锁，避免同用户多地址并发触发速率限制）────────
+_ai_locks: dict[str, threading.Lock] = {}
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -266,7 +266,9 @@ def _check_address_sync(user: dict, address: str) -> None:
         print(f"    [AI] 余额不足（已通知），跳过 AI 分析")
     else:
         print(f"    AI 分析中...")
-        with _ai_lock:
+        if user_wallet not in _ai_locks:
+            _ai_locks[user_wallet] = threading.Lock()
+        with _ai_locks[user_wallet]:
             try:
                 advice = _ai_analysis(pos, level, breakdown, ai_provider, ai_model, ai_api_key)
                 _ai_quota_alerted.discard(user_wallet)
