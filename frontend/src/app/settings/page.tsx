@@ -18,7 +18,7 @@ function AddressList({ addresses, onChange }: { addresses: string[]; onChange: (
 
   const add = () => {
     const val = input.trim()
-    if (!isAddress(val) || addresses.includes(val)) return
+    if (!isAddress(val) || addresses.includes(val) || addresses.length >= 2) return
     onChange([...addresses, val])
     setInput('')
   }
@@ -26,7 +26,7 @@ function AddressList({ addresses, onChange }: { addresses: string[]; onChange: (
   return (
     <div className="flex flex-col gap-2">
       <p className="text-sm text-white">监控地址</p>
-      <p className="text-xs text-gray-500">留空时监控已连接钱包，可添加多个地址</p>
+      <p className="text-xs text-gray-500">最多添加 2 个监控地址</p>
       <div className="flex flex-col gap-2">
         {addresses.map(addr => (
           <div key={addr} className="flex items-center justify-between bg-white/5 rounded-lg px-3 py-2">
@@ -51,7 +51,7 @@ function AddressList({ addresses, onChange }: { addresses: string[]; onChange: (
         />
         <button
           onClick={add}
-          disabled={!isAddress(input.trim())}
+          disabled={!isAddress(input.trim()) || addresses.length >= 2}
           className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 disabled:opacity-40 disabled:cursor-not-allowed text-white text-sm rounded-lg transition-colors"
         >
           添加
