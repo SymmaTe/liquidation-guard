@@ -6,6 +6,8 @@ Aave V3 仓位监控与 AI 分析工具，帮助你实时掌握借贷健康度�
 
 **网址**：[liquidation-guard.vercel.app](https://liquidation-guard.vercel.app)
 
+**用户手册**：[thrilling-humerus-8fe.notion.site](https://thrilling-humerus-8fe.notion.site/Liquidation-Guard-98045d5666c245d2bad2f1758b7bce31)
+
 ---
 
 ## 功能概览
