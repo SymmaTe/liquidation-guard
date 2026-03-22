@@ -516,6 +516,7 @@ export default function SettingsPage() {
 
           {/* AI 分析 */}
           <Section title="AI 分析">
+            <p className="text-xs text-gray-500 mb-2">AI Key 用于对话分析，监控告警由平台提供。</p>
             {/* 提供商选择 */}
             <Row label="AI 提供商" desc="选择你拥有 API Key 的服务商">
               <select
