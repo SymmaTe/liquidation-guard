@@ -143,7 +143,7 @@ def _send_telegram(chat_id: str, text: str) -> None:
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", ai_model: str = "", ai_api_key: str = "", warning_hf: float = 1.4) -> str:
     urgency = "紧急，即将被清算" if level == "DANGER" else "警告，接近告警线"
-    target_hf = round(warning_hf + 0.2, 2)
+    target_hf = round(warning_hf + 0.05, 2)
     token_lines = ""
     weighted_liq = ""
     if breakdown and breakdown.get("collateral_tokens"):
@@ -160,7 +160,7 @@ def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", 
             "content": (
                 f"你是 DeFi 清算保护 Agent。收到仓位告警时，必须按顺序执行：\n"
                 f"1. 对每种质押和借款代币调用 get_token_price 获取最新价格\n"
-                f"2. 同时计算两种方案（目标健康度统一使用 {target_hf}，即用户警告线 {warning_hf} + 缓冲 0.2）：\n"
+                f"2. 同时计算两种方案（目标健康度统一使用 {target_hf}，即用户警告线 {warning_hf} + 0.05 的最小缓冲）：\n"
                 f"   方案A 还款：调用 calculate_repayment_needed，传入 target_health={target_hf}\n"
                 f"   方案B 补仓：调用 calculate_collateral_needed（传入加权清算阈值），传入 target_health={target_hf}\n"
                 f"3. 综合判断是否真的需要操作\n"
