@@ -141,9 +141,15 @@ def _send_telegram(chat_id: str, text: str) -> None:
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # AI 分析（同步，给 executor 用）
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", ai_model: str = "", ai_api_key: str = "", warning_hf: float = 1.4) -> str:
-    urgency = "紧急，即将被清算" if level == "DANGER" else "警告，接近告警线"
+def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", ai_model: str = "", ai_api_key: str = "", warning_hf: float = 1.4, danger_hf: float = 1.1) -> str:
     target_hf = round(warning_hf + 0.05, 2)
+
+    # 紧迫度：(hf - danger_hf) / (warning_hf - danger_hf)，区间越小越紧迫
+    hf = pos["health"]
+    span = warning_hf - danger_hf
+    urgency_ratio = ((hf - danger_hf) / span) if span > 0 else 1.0
+    urgency_pct = round(urgency_ratio * 100, 1)
+
     token_lines = ""
     weighted_liq = ""
     if breakdown and breakdown.get("collateral_tokens"):
@@ -158,27 +164,32 @@ def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", 
         {
             "role": "system",
             "content": (
-                f"你是 DeFi 清算保护 Agent。收到仓位告警时，必须按顺序执行：\n"
-                f"1. 对每种质押和借款代币调用 get_token_price 获取最新价格\n"
-                f"2. 同时计算两种方案（目标健康度统一使用 {target_hf}，即用户警告线 {warning_hf} + 0.05 的最小缓冲）：\n"
-                f"   方案A 还款：调用 calculate_repayment_needed，传入 target_health={target_hf}\n"
-                f"   方案B 补仓：调用 calculate_collateral_needed（传入加权清算阈值），传入 target_health={target_hf}\n"
-                f"3. 综合判断是否真的需要操作\n"
-                f"最终建议不超过150字，必须严格按以下格式输出，每段用标签开头：\n"
-                f"分析结果：xxx\n\n方案对比：xxx\n\n操作建议：xxx\n"
-                f"禁止使用 ** # ` 等 Markdown 符号。"
+                f"你是 DeFi 清算保护 Agent。收到仓位告警时，必须严格按以下步骤执行：\n\n"
+                f"【步骤1】对每种质押和借款代币调用 get_token_price 获取最新价格\n\n"
+                f"【步骤2】同时计算两种方案（目标健康度统一使用 {target_hf}，即注意线 {warning_hf} + 0.05）：\n"
+                f"  方案A 还款：调用 calculate_repayment_needed，传入 target_health={target_hf}\n"
+                f"  方案B 补仓：调用 calculate_collateral_needed（传入加权清算阈值），传入 target_health={target_hf}\n\n"
+                f"【步骤3】严格按以下格式输出，禁止使用 ** # ` 等 Markdown 符号：\n\n"
+                f"分析结果：说明当前紧迫程度。"
+                f"紧迫度公式：(当前HF - 紧急线) / (注意线 - 紧急线)，"
+                f"已算好为 {urgency_pct}%。"
+                f"低于50%说明必须立即操作；高于50%说明可观望但建议提前准备。\n\n"
+                f"方案对比：\n"
+                f"方案A 还款：还 $xxx，健康度恢复至 {target_hf}\n"
+                f"方案B 补仓：补 $xxx，健康度恢复至 {target_hf}\n\n"
+                f"操作建议：推荐方案X，理由xxx。"
+                f"具体操作：[补仓/还款] [数量] 个 [代币]（当前价 $xxx，合计 $xxx）。"
             ),
         },
         {
             "role": "user",
             "content": (
-                f"【{urgency}】\n"
+                f"当前仓位数据：\n"
                 f"钱包: {pos['wallet']}\n"
-                f"健康度: {pos['health']:.4f}\n"
+                f"健康度: {hf:.4f}（注意线: {warning_hf}，紧急线: {danger_hf}，紧迫度: {urgency_pct}%）\n"
                 f"总抵押: ${pos['collateral']:,.2f}\n"
                 f"总借款: ${pos['debt']:,.2f}\n"
-                f"{token_lines}{weighted_liq}\n"
-                "请根据以上质押明细，判断是否需要补仓，并给出建议。"
+                f"{token_lines}{weighted_liq}"
             ),
         },
     ]
@@ -271,7 +282,7 @@ def _check_address_sync(user: dict, address: str) -> None:
             _ai_locks[user_wallet] = threading.Lock()
         with _ai_locks[user_wallet]:
             try:
-                advice = _ai_analysis(pos, level, breakdown, ai_provider, ai_model, ai_api_key, warning_hf=alert_t)
+                advice = _ai_analysis(pos, level, breakdown, ai_provider, ai_model, ai_api_key, warning_hf=alert_t, danger_hf=danger_t)
                 _ai_quota_alerted.discard(user_wallet)
                 print(f"    AI 建议: {advice}")
             except Exception as e:
