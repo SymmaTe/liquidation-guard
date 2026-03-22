@@ -424,9 +424,11 @@ Supabase DB    Telegram Bot（告警推送，用用户 chat_id）
    - `agent/requirements.txt` 补充 `supabase>=2.4.0`
    - AI 分析异常捕获从 `RuntimeError` 改为 `Exception`（防止 litellm 异常崩溃进程）
    - 环境变量：`SUPABASE_URL`、`SUPABASE_SERVICE_ROLE_KEY`、`TELEGRAM_BOT_TOKEN`
-   - **⚠️ 待定**：监控告警 AI 分析暂未配置（当前显示"AI 分析暂不可用"），待决策方案：
-     - 方案 B：平台统一 API key（环境变量）
-     - 方案 C：告警附 App 链接，用户自行点开 AI 分析
+   - **✅ 已完成**：监控告警 AI 分析采用方案D（用户自带 API Key）
+     - 用户在设置页填写 AI Key，Fernet 加密存 Supabase
+     - monitor 从 user_settings 读取并解密，传入 run_agent
+     - 无 Key 用户跳过 AI 分析，告警照常发送
+     - 余额不足时发一次 Telegram 提示后降级，充值后自动恢复
 
 3. **前端（Vercel）**
    - Root Directory = `frontend/`
