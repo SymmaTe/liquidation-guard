@@ -141,7 +141,7 @@ def _send_telegram(chat_id: str, text: str) -> None:
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # AI 分析（同步，给 executor 用）
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", ai_model: str = "", ai_api_key: str = "", warning_hf: float = 1.4, danger_hf: float = 1.1) -> str:
+def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", ai_model: str = "", ai_api_key: str = "", warning_hf: float = 1.4, danger_hf: float = 1.1, rpc_url: str = None) -> str:
     target_hf = round(warning_hf + 0.05, 2)
 
     # 紧迫度：(hf - danger_hf) / (warning_hf - danger_hf)，区间越小越紧迫
@@ -202,7 +202,7 @@ def _ai_analysis(pos: dict, level: str, breakdown: dict, ai_provider: str = "", 
     if _prefix and _model and not _model.startswith(_prefix):
         _model = _prefix + _model
     try:
-        return run_agent(messages, model=_model or None, api_key=ai_api_key or None)
+        return run_agent(messages, model=_model or None, api_key=ai_api_key or None, rpc_url=rpc_url or None)
     except Exception as e:
         err = str(e).lower()
         if any(k in err for k in ("insufficient_quota", "exceeded your current quota", "billing", "you have run out", "no credits")):
@@ -284,7 +284,7 @@ def _check_address_sync(user: dict, address: str) -> None:
             _ai_locks[user_wallet] = threading.Lock()
         with _ai_locks[user_wallet]:
             try:
-                advice = _ai_analysis(pos, level, breakdown, ai_provider, ai_model, ai_api_key, warning_hf=alert_t, danger_hf=danger_t)
+                advice = _ai_analysis(pos, level, breakdown, ai_provider, ai_model, ai_api_key, warning_hf=alert_t, danger_hf=danger_t, rpc_url=rpc_url)
                 _ai_quota_alerted.discard(user_wallet)
                 print(f"    AI 建议: {advice}")
             except Exception as e:

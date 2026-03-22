@@ -255,25 +255,32 @@ def calculate_collateral_needed(
     }
 
 
-def execute_tool(tool_name: str, tool_args: dict) -> str:
+def execute_tool(tool_name: str, tool_args: dict, rpc_url: str = None) -> str:
     """根据 AI 决定执行对应工具，返回 JSON 字符串"""
-    dispatch = {
-        "get_aave_position":           get_aave_position,
-        "get_token_price":             get_token_price,
-        "get_token_ltv":               get_token_ltv,
-        "get_collateral_breakdown":    get_user_collateral_breakdown,
-        "calculate_repayment_needed":  calculate_repayment_needed,
-        "calculate_collateral_needed": calculate_collateral_needed,
-    }
-    fn = dispatch.get(tool_name)
-    result = fn(**tool_args) if fn else {"error": f"未知工具: {tool_name}"}
+    try:
+        if tool_name == "get_aave_position":
+            result = get_aave_position(tool_args["wallet_address"])
+        elif tool_name == "get_token_price":
+            result = get_token_price(tool_args["symbol"], rpc_url)
+        elif tool_name == "get_token_ltv":
+            result = get_token_ltv(tool_args["symbol"], rpc_url)
+        elif tool_name == "get_collateral_breakdown":
+            result = get_user_collateral_breakdown(tool_args["wallet_address"], rpc_url)
+        elif tool_name == "calculate_repayment_needed":
+            result = calculate_repayment_needed(**tool_args)
+        elif tool_name == "calculate_collateral_needed":
+            result = calculate_collateral_needed(**tool_args)
+        else:
+            result = {"error": f"未知工具: {tool_name}"}
+    except Exception as e:
+        result = {"error": str(e)}
     return json.dumps(result, ensure_ascii=False)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # Agent 主循环
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-def run_agent(messages: list, model: str = None, api_key: str = None) -> str:
+def run_agent(messages: list, model: str = None, api_key: str = None, rpc_url: str = None) -> str:
     pos_result = None
     bd_result  = None
     _model = model or MODEL
@@ -297,7 +304,7 @@ def run_agent(messages: list, model: str = None, api_key: str = None) -> str:
                 tool_name = tool_call.function.name
                 tool_args = json.loads(tool_call.function.arguments)
                 print(f"\n  [Agent 调用工具] {tool_name}({tool_args})")
-                result = execute_tool(tool_name, tool_args)
+                result = execute_tool(tool_name, tool_args, rpc_url)
                 print(f"  [工具返回] {result[:120]}...")
                 messages.append({
                     "role":         "tool",
