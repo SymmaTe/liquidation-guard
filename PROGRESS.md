@@ -261,7 +261,7 @@ AI 调用 calculate_collateral_needed(...)
    - Telegram Chat ID + 自定义通知间隔 + **测试发送按钮**（Step 7 已接入后端）
    - AI 提供商选择（Anthropic / OpenAI / Google / DeepSeek / 豆包）+ API Key + 模型 ID
    - AI 测试连接按钮（Step 7 已接入后端，5 秒超时）
-   - 所有设置存 localStorage 同时同步 Supabase（Step 7 已完成，ai_key 仅存本地）
+   - 所有设置同步 Supabase（Step 7 已完成，ai_key 加密存服务器，前端不可读取）
 
 4. **AI 对话页 `/chat`**
    - ChatGPT 式布局：左侧对话历史列表 + 右侧全高聊天区

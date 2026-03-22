@@ -59,7 +59,7 @@
 - 监控 AI 分析：当前未配置，告警只发基础数据（健康度、抵押、借款）
 - 数据保留：health_history 表每 7 天自动清理一次旧记录
 - CORS：后端已配置允许 `liquidation-guard.vercel.app`
-- AI key：用户在设置页填写，仅存浏览器 localStorage，不上传服务器
+- AI key：用户在设置页填写，Fernet 加密后存储于 Supabase，前端不可读取明文
 
 ---
 
