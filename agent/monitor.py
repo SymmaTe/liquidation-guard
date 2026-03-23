@@ -217,9 +217,9 @@ def _check_address_sync(user: dict, address: str) -> None:
     user_wallet  = user["wallet_address"]
     rpc_url      = user.get("rpc_url") or None
     chat_id      = user.get("telegram_chat_id", "")
-    cooldown_w   = user.get("alert_cooldown_warning", 30)
-    cooldown_d   = user.get("alert_cooldown_danger", 5)
     use_custom   = user.get("custom_thresholds", False)
+    cooldown_w   = user.get("alert_cooldown_warning", 30) if use_custom else 30
+    cooldown_d   = user.get("alert_cooldown_danger", 5) if use_custom else 5
     custom_warn  = user.get("warning_hf", 1.4)
     custom_danger= user.get("danger_hf", 1.1)
     ai_provider  = user.get("ai_provider", "")
@@ -317,7 +317,8 @@ def _check_address_sync(user: dict, address: str) -> None:
 async def check_user(loop: asyncio.AbstractEventLoop, user: dict) -> None:
     """检查一个用户的所有监控地址（根据 refresh_interval 决定是否跳过）"""
     wallet         = user["wallet_address"]
-    refresh        = user.get("refresh_interval", 300)
+    use_custom     = user.get("custom_thresholds", False)
+    refresh        = user.get("refresh_interval", 300) if use_custom else 300
     addresses      = [a for a in (user.get("monitor_addresses") or []) if a.startswith("0x")]
 
     last = _last_check.get(wallet)
