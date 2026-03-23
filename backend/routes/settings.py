@@ -20,6 +20,8 @@ class UserSettings(BaseModel):
     warning_hf: float = 1.4
     danger_hf: float = 1.1
     custom_thresholds: bool = False
+    custom_refresh_interval: bool = False
+    custom_alert_cooldown: bool = False
     telegram_chat_id: str = ''
     alert_cooldown_warning: int = 30
     alert_cooldown_danger: int = 5
