@@ -497,3 +497,16 @@ Supabase DB    Telegram Bot（告警推送，用用户 chat_id）
 - chat formatDate 跨月 bug 修复（用时间戳差值替代 getDate() 相减）
 - chat textarea 自动撑高，最大 160px
 - chat 无对话时右侧显示"开始新对话"引导提示
+
+---
+
+## Update 2026-03-23 — 自定义开关 Bug 修复 + 文档完善
+
+### Bug 修复
+- 自定义开关未开启时，`refresh_interval`、`alert_cooldown_warning`、`alert_cooldown_danger` 仍会使用用户填写的值而非默认值；现已在 monitor.py 中统一判断 `use_custom`，关闭时强制使用默认值（300s / 30min / 5min）
+
+### 文档
+- README.md 完整重写为用户手册（中文），涵盖功能概览、快速上手、各模块配置说明、FAQ、联系方式
+- 明确标注：仅支持以太坊主网，仅提供网页版，推荐桌面浏览器访问
+- AI 配置推荐 DeepSeek（价格低，够用）
+- 发布 Notion 公开用户手册：https://thrilling-humerus-8fe.notion.site/Liquidation-Guard-98045d5666c245d2bad2f1758b7bce31
