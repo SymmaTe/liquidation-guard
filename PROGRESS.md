@@ -510,3 +510,14 @@ Supabase DB    Telegram Bot（告警推送，用用户 chat_id）
 - 明确标注：仅支持以太坊主网，仅提供网页版，推荐桌面浏览器访问
 - AI 配置推荐 DeepSeek（价格低，够用）
 - 发布 Notion 公开用户手册：https://thrilling-humerus-8fe.notion.site/Liquidation-Guard-98045d5666c245d2bad2f1758b7bce31
+
+---
+
+## Update 2026-03-23 — 自定义开关独立化
+
+### Bug 修复
+- 查询间隔、通知冷却各自开关状态未持久化到数据库，导致关闭开关后自定义值仍生效
+- Supabase 新增两列：`custom_refresh_interval`、`custom_alert_cooldown`
+- backend/routes/settings.py：新增两字段的读写
+- frontend/settings/page.tsx：加载时读取两字段，保存时写入两字段
+- monitor.py：`refresh_interval` 改用 `custom_refresh_interval` 判断，`cooldown` 改用 `custom_alert_cooldown` 判断，三个自定义开关完全独立
