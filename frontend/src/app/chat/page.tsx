@@ -257,6 +257,7 @@ function ChatArea({
           provider,
           rpc_url: settings.rpcUrl || null,
           wallet_address: wallet || null,
+          query_address: address || wallet || null,
         }),
         signal: combined,
       })

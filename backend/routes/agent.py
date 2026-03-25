@@ -298,6 +298,7 @@ class ChatRequest(BaseModel):
     provider:       str = "anthropic"
     rpc_url:        Optional[str] = None
     wallet_address: Optional[str] = None
+    query_address:  Optional[str] = None
 
 
 # ─── 接口 ──────────────────────────────────────────────────────────────────────
@@ -324,10 +325,11 @@ async def agent_chat(body: ChatRequest):
 
             if not messages or messages[0].get("role") != "system":
                 system = SYSTEM_PROMPT
-                if body.wallet_address:
+                query_addr = body.query_address or body.wallet_address
+                if query_addr:
                     target_hf = round(warning_hf + 0.05, 2)
                     system += (
-                        f"\n\n【用户钱包地址】{body.wallet_address}\n"
+                        f"\n\n【用户钱包地址】{query_addr}\n"
                         f"用户询问「我的仓位」时，直接用此地址查询，无需再索要。\n"
                         f"【用户告警阈值】警告线 HF={warning_hf}，计算补仓/还款时目标健康度统一使用 {target_hf}（警告线 + 0.05 最小缓冲），"
                         f"调用 calculate_repayment_needed 和 calculate_collateral_needed 时必须传入 target_health={target_hf}。"
